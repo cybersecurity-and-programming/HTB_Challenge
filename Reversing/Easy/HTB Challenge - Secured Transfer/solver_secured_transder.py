@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from argparse import ArgumentParser
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
