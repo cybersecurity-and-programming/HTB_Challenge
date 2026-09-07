@@ -147,7 +147,7 @@ registrar dos usuarios distintos cuyos nombres de usuario comparten el mismo has
 es idéntica, satisfaciendo así las condiciones que desencadenan la terminación anómala de la aplicación y
 la consiguiente filtración de la flag.
 
-Exploitation
+<p align="center"><strong><u>Exploitation</u></strong></p>
 
 A  estas  alturas,  la  lógica  de  explotación  del  servicio  puede  considerarse  plenamente  delineada.  El
 comportamiento defectuoso que conduce a la terminación abrupta de la aplicación exige la existencia de
@@ -156,13 +156,11 @@ MD5  idéntico  y  con  una  contraseña  común.  Esta  configuración  es  imp
 condición  de  autenticación  basada  en  la  comparación  estricta  del  par  [usr_hash,  pwd]  con  los  valores
 almacenados en la base de datos.
 
-7 de septiembre de 2026
-
-4
-
 La divergencia entre el nombre de usuario en texto claro suministrado durante el proceso de autenticación
 y  el  nombre  de  usuario  almacenado  en  el  registro  que  satisface  dicha  comparación  es,  precisamente,  el
 detonante del fallo lógico que culmina en la exposición de la flag.
+
+<img src="assets/6.jpg">
 
 La elección del usuario con el que se realiza la autenticación no es arbitraria. Debido a la naturaleza de las
 estructuras de diccionario en Python, los elementos se recorren en el orden en que fueron insertados. Tras
@@ -174,6 +172,8 @@ coincidencia se cumplirá para el primer registro, independientemente de cuál s
 intenta  iniciar  sesión.  Sin  embargo,  como  los  nombres  de  usuario  en  texto  claro  difieren,  la  aplicación
 detectará  la  inconsistencia  y  ejecutará  la  ruta  defectuosa  que  provoca  su  terminación  y  la  consiguiente
 filtración de la flag.
+
+<img src="assets/7.jpg">
 
 En este punto, la base de datos contendrá dos entradas con nombres de usuario distintos, pero con digestos
 MD5 idénticos, generados a partir de una colisión alfanumérica previamente identificada. La contraseña
@@ -188,12 +188,39 @@ segundo  usuario  colisionado  con  la  misma  contraseña  y,  finalmente,  aut
 nombre de usuario para garantizar que la inconsistencia se produzca en el primer registro evaluado. Esta
 secuencia reproduce fielmente el vector de explotación y permite obtener la flag de manera sistemática.
 
-7 de septiembre de 2026
+```python
+from pwn import *
+import json
 
-5
+io = None
+usr_1 = 'TEXTCOLLBYfGiJUETHQ4hAcKSMd5zYpgqf1YRDhkmxHkhPWptrkoyz28wnI9V0aHeAuaKnak'
+usr_2 = 'TEXTCOLLBYfGiJUETHQ4hEcKSMd5zYpgqf1YRDhkmxHkhPWptrkoyz28wnI9V0aHeAuaKnak'
 
-7 de septiembre de 2026
+def get_flag():
+    io.sendlineafter(b' :: ', json.dumps({'option': 'register'}).encode())
+    io.sendlineafter(b' :: ', json.dumps({'username': usr_1, 'password': 'password'}).encode())
+    io.sendlineafter(b' :: ', json.dumps({'option': 'register'}).encode())
+    io.sendlineafter(b' :: ', json.dumps({'username': usr_2, 'password': 'password'}).encode())
+    io.sendlineafter(b' :: ', json.dumps({'option': 'login'}).encode())
+    io.sendlineafter(b' :: ', json.dumps({'username': usr_2, 'password': 'password'}).encode())
+    return io.recvline().decode().strip().split(' :: ')[-1]
 
-6
+def pwn():
+    flag = get_flag()
+
+    print(flag)
+
+if __name__ == '__main__':
+    if args.REMOTE:
+        host_port = sys.argv[1].split(':')
+        HOST = host_port[0]
+        PORT = host_port[1]
+        io = remote(HOST, PORT, level='error')
+    else:
+        import os
+        io = process(['python3', 'server.py'], level='error')
+
+    pwn()
+```
 
 
