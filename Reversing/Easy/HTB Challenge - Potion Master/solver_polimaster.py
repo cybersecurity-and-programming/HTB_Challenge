@@ -44,28 +44,3 @@ def decrypt():
 
 if __name__== '__main__':
     decrypt()
-
-'''
-for i in range(0, 76, 2):
-    s.add(reduce(lambda x, y: x - y, x[i : i + 2]) == a[i // 2])
-
-for i in range(0, 76, 3):
-    s.add(reduce(lambda x, y: x ^ y, x[i : i + 3]) == b[i // 3])
-
-for i in range(0, 76, 4):
-    s.add(reduce(lambda x, y: x + y, x[i : i + 4]) == c[i // 4])
-
-for i in range(0, 76, 5):
-    s.add(x[i] == d[i // 5])
-
-for i in range(76):
-    s.add(x[i] <= 0x7f)
-    s.add(0x20 <= x[i])
-
-s.check()
-model = s.model()
-
-flag = ''.join(chr(model[i].as_long()) for i in x)
-
-print('HTB{' + flag + '}')
-'''
