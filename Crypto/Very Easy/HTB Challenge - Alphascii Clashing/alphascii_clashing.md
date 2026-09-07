@@ -1,24 +1,6 @@
-HTB Challenge - alphascii clashing
-
-Dificultad:
-Release:
-
-Very Easy
-
-25-09-2024
-
-Skills Required
-
-  Basic Python source code analysis
-  Know  how  to  research  with  the  right  keywords
-
-based on the hints provided.
-
-Skills Learned
-
-  Learn  about  MD5  collisions  produced  by
-
-alphanumeric inputs.
+<p align="center">
+<img src="assets/1.png" width="1000">
+</p>
 
 La presente evaluación técnica aborda el análisis de un servicio de autenticación minimalista cuya lógica
 interna presenta una vulnerabilidad criptográfica de alto impacto derivada del uso de la función hash MD5
@@ -44,11 +26,7 @@ a  la  vulnerabilidad.  El  análisis  demuestra,  en  última  instancia,  cóm
 endurecimiento criptográfico y de validación coherente de identidad puede derivar en fallos lógicos críticos
 incluso en aplicaciones de complejidad reducida.
 
-7 de septiembre de 2026
-
-1
-
-Enumeration
+<p align="center"><strong><u>Enumeration</u></strong></p>
 
 En  el  contexto  de  esta  evaluación,  el  escenario  de  ataque  se  articula  alrededor  de  un  único  artefacto
 proporcionado por la plataforma: el fichero server.py, que constituye el servicio Python desplegado en la
@@ -56,7 +34,7 @@ instancia remota y actúa como superficie primaria de interacción. La concisió
 un análisis estático exhaustivo desde las primeras fases del ejercicio, permitiendo identificar con rapidez la
 lógica de negocio, los mecanismos de autenticación y las estructuras internas de persistencia.
 
-Analyzing the source code
+<p align="center"><strong><u>Analyzing the source code</u></strong></p>
 
 El script inicializa una base de datos mínima sustentada en un diccionario en memoria, dentro del cual se
 encuentran predefinidos dos usuarios registrados. El propio comentario incluido por el desarrollador revela
@@ -65,11 +43,15 @@ cualquier capa de abstracción, validación o control de integridad. Esta precar
 la  posibilidad  de  vectores  de  explotación  derivados  de  la  ausencia  de  controles  propios  de  entornos
 productivos.
 
+<img src="assets/2.jpg">
+
 A continuación, el código expone la función get_option(), responsable de presentar el menú principal y de
 orquestar el flujo de ejecución mediante tres rutas funcionales: autenticación, registro de nuevos usuarios
 y  terminación  de  la  sesión.  Esta  interfaz  rudimentaria  constituye  el  punto  de  entrada  para  todas  las
 operaciones  del  servicio  y,  por  tanto,  el  eje  desde  el  cual  se  articula  la  interacción  del  atacante  con  la
 aplicación vulnerable.
+
+<img src="assets/3.jpg">
 
 El cuerpo central del método principal articula la lógica de control del flujo de ejecución, delegando en
 funciones  específicas  la  gestión  de  los  procesos  de  registro  y  autenticación.  Para  comprender
@@ -86,10 +68,6 @@ funciones hash  y colisiones controladas. Una vez verificada la naturaleza alfan
 constatado que el nombre de usuario no existe previamente en la base de datos, el sistema procede a registrar
 la nueva entrada, almacenando el hash MD5 del nombre de usuario junto con la contraseña en texto claro,
 conforme al formato descrito en los comentarios de inicialización.
-
-7 de septiembre de 2026
-
-2
 
 El flujo de autenticación reproduce parcialmente la estructura anterior: nuevamente se solicita al usuario la
 entrega  de  sus  credenciales  en  JSON  y,  acto  seguido,  se  calcula  el  hash  MD5  del  nombre  de  usuario
@@ -114,7 +92,9 @@ nombre de usuario cuyo hash MD5 coincida con el de un registro existente, pero c
 difiera del almacenado, provocando así la condición de inconsistencia que fuerza la terminación del servicio
 y la consiguiente filtración de la flag.
 
-Finding the vulnerability
+<img src="assets/4.jpg">
+
+<p align="center"><strong><u>Finding the vulnerability</u></strong></p>
 
 La  condición  necesaria  para  desencadenar  el  comportamiento  anómalo  del  servicio  —esto  es,  la
 terminación  abrupta  de  la  aplicación  y  la  consiguiente  exposición  de  la  flag—  exige  que  el  nombre  de
@@ -124,10 +104,6 @@ contener al menos dos  entradas adicionales creadas  por  el  propio atacante,  
 usuario distinto, pero con un hash MD5 coincidente. Además, ambas entradas deben compartir la misma
 contraseña, dado que la verificación de autenticación se articula mediante la comparación estricta del par
 [usr_hash, pwd] con el registro correspondiente.
-
-7 de septiembre de 2026
-
-3
 
 En una primera aproximación, esta condición podría parecer de difícil consecución; sin embargo, el propio
 enunciado  del  desafío  y  la  elección  de  la  función  hash  utilizada  orientan  claramente  la  estrategia  de
@@ -143,7 +119,7 @@ que el sistema detecte la coincidencia del hash y de la clave, pero no la del no
 Esta discrepancia lógica activa la ruta de ejecución defectuosa que culmina en la finalización del servicio
 y la revelación de la flag.
 
-Finding alphanumeric MD5 collisions
+<p align="center"><strong><u>Finding alphanumeric MD5 collisions</u></strong></p>
 
 La literatura técnica recoge múltiples ejemplos de colisiones MD5 construidas de forma deliberada, y uno
 de los más citados demuestra la existencia de pares de entradas distintas que producen idénticos digestos.
@@ -160,6 +136,8 @@ afirma  la  existencia  de  una  colisión  MD5  alfanumérica  de  72  bytes,  
 empíricamente  sin  dificultad.  La  confirmación  de  este  hallazgo  demuestra  que  es  posible  generar  dos
 cadenas  alfanuméricas  distintas  que  produzcan  el  mismo  hash  MD5,  cumpliendo  así  las  condiciones
 necesarias para explotar la lógica defectuosa del servicio.
+
+<img src="assets/5.jpg">
 
 Más  aún,  la  disponibilidad  de  herramientas  de  código  abierto  especializadas  permite  generar  colisiones
 adicionales con relativa facilidad, ampliando el  conjunto  de candidatos potenciales  y  proporcionando al
