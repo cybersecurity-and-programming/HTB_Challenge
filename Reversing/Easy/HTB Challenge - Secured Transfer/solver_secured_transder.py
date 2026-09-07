@@ -1,24 +1,3 @@
-'''
-from scapy.all import rdpcap
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
-from argparse import ArgumentParser
-
-def decrypt(pcap_file):
-    packets = rdpcap(pcap_file)
-    lengthpkt, datapkt = [pkt['Raw'].load for pkt in packets if 'TCP' in pkt and 'Raw' in pkt and pkt['Raw'].load]
-
-    cipher = AES.new(b"supersecretkeyusedforencryption!", AES.MODE_CBC, b"someinitialvalue")
-    print(unpad(cipher.decrypt(datapkt), AES.block_size).decode())
-
-if __name__ == '__main__':
-
-    parser = ArgumentParser()
-    parser.add_argument("-f", "--file", help="Archivo de paquetes .pcap", required=True)
-    opciones = parser.parse_args()
-    decrypt(opciones.file)
-'''
-
 from argparse import ArgumentParser
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
