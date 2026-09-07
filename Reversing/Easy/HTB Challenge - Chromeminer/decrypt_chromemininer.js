@@ -1,4 +1,4 @@
-// decrypt.js
+//node decrypt_chromemininer.js
 (async () => {
     const s = "_NOT_THE_SECRET_";
     
